@@ -1,5 +1,4 @@
-module github.com/blockloop/scan
-replace github.com/blockloop/scan => github.com/segfault99/scan
+module github.com/segfault99/scan
 
 go 1.17
 
