@@ -106,9 +106,21 @@ func rows(v interface{}, r RowsScanner, strict bool) (outerr error) {
 	}
 
 	isPrimitive := itemType.Kind() != reflect.Struct
+    isPtrToStruct := false
+    if itemType.Kind() == reflect.Pointer {
+        isPrimitive = itemType.Elem().Kind() != reflect.Struct
+        isPtrToStruct = !isPrimitive
+    }
 
 	for r.Next() {
-		sliceItem := reflect.New(itemType).Elem()
+        var sliceItem reflect.Value
+
+        //if slice element type is pointer to struct, create a new struct
+        if isPtrToStruct {
+            sliceItem = reflect.New(itemType.Elem()).Elem()
+        } else {
+		    sliceItem = reflect.New(itemType).Elem()
+        }
 
 		var pointers []interface{}
 		if isPrimitive {
@@ -128,6 +140,12 @@ func rows(v interface{}, r RowsScanner, strict bool) (outerr error) {
 		if err != nil {
 			return err
 		}
+
+        //if slice element type is pointer to struct, take address of the
+        //new created item before appending
+        if itemType.Kind() == reflect.Pointer {
+            sliceItem = sliceItem.Addr()
+        }
 		sliceVal.Set(reflect.Append(sliceVal, sliceItem))
 	}
 	return r.Err()

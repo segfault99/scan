@@ -350,6 +350,23 @@ func Test_OnAutoCloseErrorIsCalledWhenRowsCloseErrors(t *testing.T) {
 	assert.EqualValues(t, 1, calls)
 }
 
+func TestScanToSliceOfPointerToStruct(t *testing.T) {
+    type data struct {
+        Name string `db:"name"`
+        Age int `db:"age"`
+    }
+    expected := data{"Bob", 22}
+
+    datas := []*data{}
+
+    rows := fakeRowsWithRecords(t, []string{"name","age"}, []interface{}{"Bob", 22})
+
+    err := scan.Rows(&datas, rows)
+    assert.NoError(t, err)
+    assert.NotEmpty(t, datas)
+    assert.Equal(t, expected, *datas[0])
+}
+
 func setValue(ptr, val interface{}) {
 	reflect.ValueOf(ptr).Elem().Set(reflect.ValueOf(val))
 }
