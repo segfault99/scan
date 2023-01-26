@@ -1,4 +1,4 @@
-module github.com/segfault99/scan
+module github.com/blockloop/scan
 
 go 1.17
 
